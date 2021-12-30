@@ -51,7 +51,7 @@ SinGAN项目文件结构
  - 训练超参数
     - --niter
     - --lr_g
-    - --lr_g
+    - --lr_d
     - --gamma
     - --beta1
     - --Gsteps
