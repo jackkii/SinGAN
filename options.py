@@ -35,7 +35,7 @@ def get_arguments():
 
     # 随机种子数
     parser.add_argument('--manualSeed', type=int, help='manual seed')
-    
+
     # 图片/噪声参数
     parser.add_argument('--nc_z', type=int, help='noise # channels', default=3)
     parser.add_argument('--nc_im', type=int, help='image # channels', default=3)
