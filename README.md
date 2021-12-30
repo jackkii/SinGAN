@@ -1,11 +1,7 @@
 # SinGAN
 原仓库：https://github.com/tamarott/SinGAN
 
----
-
 复现SinGAN论文代码
-
----
 
 ```shell
 SinGAN项目文件结构
