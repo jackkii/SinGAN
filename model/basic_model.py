@@ -1,4 +1,4 @@
-# model.py
+
 # 定义G和D网络
 # 待解决问题：for循环生成卷积层的通道数opt.nfc问题
 import torch
@@ -24,20 +24,20 @@ class ConvBlock(nn.Sequential):
 
 class WDiscriminator(nn.Module):
     # 马尔可夫判别器
-    def __init__(self, opt):
+    def __init__(self, opt, nfc):
         super(WDiscriminator, self).__init__()
         self.is_cuda = torch.cuda.is_available()
         # nfc_current = opt.nfc
         # self.head = ConvBlock(opt.nc_im, nfc_current, opt.ker_size, opt.padd_size, opt.stride)
-        self.head = ConvBlock(opt.nc_im, opt.nfc, opt.ker_size, opt.padd_size, opt.stride)
+        self.head = ConvBlock(opt.nc_im, nfc, opt.ker_size, opt.padd_size, opt.stride)
         self.body = nn.Sequential()
         for i in range(opt.num_layer - 2):
             # nfc_current = int(opt.nfc/pow(2, (i+1)))
             # block = ConvBlock(2*nfc_current, nfc_current, opt.ker_size, opt.padd_size, opt.stride)
-            block = ConvBlock(opt.nfc, opt.nfc, opt.ker_size, opt.padd_size, opt.stride)
+            block = ConvBlock(nfc, nfc, opt.ker_size, opt.padd_size, opt.stride)
             self.body.add_module('block%d'%(i+1), block)
         # self.tail = nn.Conv2d(nfc_current, 1, kernel_size=opt.ker_size, stride=opt.stride, padding=opt.padd_size)
-        self.tail = nn.Conv2d(opt.nfc, 1, kernel_size=opt.ker_size, stride=opt.stride, padding=opt.padd_size)
+        self.tail = nn.Conv2d(nfc, 1, kernel_size=opt.ker_size, stride=opt.stride, padding=opt.padd_size)
 
     def forward(self, x):
         x = self.head(x)
@@ -48,23 +48,22 @@ class WDiscriminator(nn.Module):
 
 class Generator(nn.Module):
     # 生成器
-    def __init__(self, opt):
+    def __init__(self, opt, nfc):
         super(Generator, self).__init__()
         self.is_cuda = torch.cuda.is_available()
-        self.head = ConvBlock(opt.nc_im, opt.nfc, opt.ker_size, opt.padd_size, opt.stride)
+        self.sigmoid = torch.tensor([1]).to(opt.device)
+        self.head = ConvBlock(opt.nc_im, nfc, opt.ker_size, opt.padd_size, opt.stride)
         self.body = nn.Sequential()
         for i in range(opt.num_layer - 2):
-            block = ConvBlock(opt.nfc, opt.nfc, opt.ker_size, opt.padd_size, opt.stride)
+            block = ConvBlock(nfc, nfc, opt.ker_size, opt.padd_size, opt.stride)
             self.body.add_module('block%d' % (i + 1), block)
         self.tail = nn.Sequential(
-            nn.Conv2d(opt.nfc, opt.nc_im, kernel_size=opt.ker_size, stride=opt.stride, padding=opt.padd_size),
+            nn.Conv2d(nfc, opt.nc_im, kernel_size=opt.ker_size, stride=opt.stride, padding=opt.padd_size),
             nn.Tanh()
         )
 
     def forward(self, x, y):
-        # x为该层噪声，y为上层生成结果的上采样，两者都经过了padding
-        # 注意这里的x其实已经添加过y了
-        x = self.head(x)  # x经过5层卷积，其长宽会小于y，所以在输出时需要减小y的大小
+        x = self.head(self.sigmoid * x + y)
         x = self.body(x)
         x = self.tail(x)
         ind = int((y.shape[2] - x.shape[2]) / 2)                     # 求出卷积使长边减少的像素数目（宽边与之相同）
