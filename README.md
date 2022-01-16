@@ -13,7 +13,7 @@ SinGAN项目文件结构
 ├── eval.py     # 测试代码 
 ├── loss.py     # loss函数 
 ├── metrics.py  # 评估指标文件 
-├── model.py    # 生成器G模型和判别器D模型 
+├── model    # 生成器G模型和判别器D模型 
 ├── train.py    # 训练代码 
 └── README.md   # 项目文档
 ```
@@ -58,3 +58,12 @@ SinGAN项目文件结构
     - --Dsteps
     - --lambda_grad
     - --alpha
+
+# 参考链接
+
+[pytorch实验代码的亿些小细节（框架）](https://zhuanlan.zhihu.com/p/409662511)
+
+[pytorch常用代码片段](https://zhuanlan.zhihu.com/p/104019160)
+
+[PyTorch最佳实践，怎样才能写出一手风格优美的代码](https://www.jiqizhixin.com/articles/2019-04-29-5)
+
